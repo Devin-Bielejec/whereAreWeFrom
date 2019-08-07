@@ -1,9 +1,12 @@
-console.log("hi");
+//testing  forks?page1&per_page:100
+
+axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?page=1`).then( response => {
+console.log(response);
+}).catch( err => console.log(err) );
 
 const NY = document.querySelector("#NY");
 
 NY.addEventListener("click", e => e.target.style.fill = "green");
-console.log(NY);
 
 const userNames = [ "rleslie1015", "ajkizer", "Devin-Bielejec", "AceMouty"];
 
@@ -139,14 +142,11 @@ userNames.forEach( (userName) => {
         const numberOfStudents = Object.keys(stateObj).reduce( (acc, cur) => {
             return acc + stateObj[cur].length;
         }, 0);
-        console.log(`Number of students is ${numberOfStudents}`);
 
         statesAbbr.forEach( stateAbbr => {
-            console.log(stateAbbr);
             const stateItem = document.querySelector(`#${stateAbbr}`);
             const stateFrequency = stateObj[stateAbbr].length;
             const stateFrequencyPercentage = stateFrequency/numberOfStudents;
-            console.log(stateFrequencyPercentage);
             stateItem.style.fill = `rgba(0,0,0,${stateFrequencyPercentage}`;
 
             //click event that alerts user names of people in state

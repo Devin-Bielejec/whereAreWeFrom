@@ -121,7 +121,7 @@ let statesAbbr = [ "AK",
 
 let stateObj = {};
 
-userNames.forEach( item => {
+userNames.forEach( (item) => {
     axios.get(`https://api.github.com/users/${item}`)
     .then( response => {
         let location = response.data.location;
@@ -129,8 +129,6 @@ userNames.forEach( item => {
 
         let stateName = states.filter( item => location.includes(item))[0];
         let stateNameAbbr = statesAbbr.filter( item => location.includes(item))[0];
-
-        console.log(`State name is ${stateName} or abbr is ${stateNameAbbr}`);
 
         if (stateNameAbbr != undefined){
             stateNameAbbr = stateNameAbbr;
@@ -140,13 +138,23 @@ userNames.forEach( item => {
             console.log(`The location ${location} does not match`);
             stateNameAbbr = null;
         }
-        console.log(stateNameAbbr);
+        console.log(`The state is ${stateNameAbbr}`);
+        console.log(`state Obj is ${stateObj}`);
+
+        stateObj[stateNameAbbr] != undefined ? stateObj[stateNameAbbr] += 1 : stateObj[stateNameAbbr] = 1;
         console.log(stateObj);
-        stateObj[stateNameAbbr] = 1;
+        statesAbbr.forEach( item => {
+            const stateItem = document.querySelector(`#${item}`);
+            const stateValue = stateObj[item];
+            stateValue == 1 ? console.log(item) : false;
+
+            
+        })
+
+
         }
         )
     .catch( err => console.log(err))
 }
 )
 
-console.log(stateObj);

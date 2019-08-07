@@ -5,7 +5,7 @@ const NY = document.querySelector("#NY");
 NY.addEventListener("click", e => e.target.style.fill = "green");
 console.log(NY);
 
-const userNames = ["Devin-Bielejec", "AceMouty", "rleslie1015", "ajkizer"];
+const userNames = [ "rleslie1015", "ajkizer", "Devin-Bielejec", "AceMouty"];
 
 let states = ["Alaska",
                   "Alabama",
@@ -122,13 +122,24 @@ let statesAbbr = [ "AK",
 userNames.forEach( item => {
     axios.get(`https://api.github.com/users/${item}`)
     .then( response => {
-        const location = response.data.location;
-        const filter1 = states.filter( item => location.includes(item));
-        const filter2 = statesAbbr.filter( item => location.includes(item));
-        console.log(filter1);
-        console.log(filter2);
-        console.log(response.data.location);
-        })
+        let location = response.data.location;
+        location === null ? location = "unknown" : true;
+
+        let stateName = states.filter( item => location.includes(item))[0];
+        let stateNameAbbr = statesAbbr.filter( item => location.includes(item))[0];
+
+        console.log(`State name is ${stateName} or abbr is ${stateNameAbbr}`);
+
+        if (stateNameAbbr != undefined){
+            let currentStateAbbr = stateNameAbbr;
+        } else if (stateName.length != undefined) {
+            let currentStateAbbr = statesAbbr[states.indexOf(stateName)];
+        } else {
+            console.log(`The location ${location} does not match`);
+        }
+        console.log(currentStateAbbr);
+        }
+        )
     .catch( err => err)
 }
 )

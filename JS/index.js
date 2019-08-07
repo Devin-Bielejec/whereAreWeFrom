@@ -119,6 +119,8 @@ let statesAbbr = [ "AK",
 "WV",
 "WY"]
 
+let stateObj = {};
+
 userNames.forEach( item => {
     axios.get(`https://api.github.com/users/${item}`)
     .then( response => {
@@ -139,8 +141,12 @@ userNames.forEach( item => {
             stateNameAbbr = null;
         }
         console.log(stateNameAbbr);
+        console.log(stateObj);
+        stateObj[stateNameAbbr] = 1;
         }
         )
     .catch( err => console.log(err))
 }
 )
+
+console.log(stateObj);

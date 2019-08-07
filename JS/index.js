@@ -114,10 +114,10 @@ let statesAbbr = [ "AK",
 
 let stateObj = {};
 
-statesAbbr.forEach(item => stateObj[item] = 0);
+statesAbbr.forEach(item => stateObj[item] = []);
 
-userNames.forEach( (item) => {
-    axios.get(`https://api.github.com/users/${item}`)
+userNames.forEach( (userName) => {
+    axios.get(`https://api.github.com/users/${userName}`)
     .then( response => {
         let location = response.data.location;
         location === null ? location = "unknown" : true;
@@ -133,24 +133,27 @@ userNames.forEach( (item) => {
             console.log(`The location ${location} does not match`);
             stateNameAbbr = "uknown";
         }
-        console.log(`The state is ${stateNameAbbr}`);
-        console.log(`state Obj is ${stateObj}`);
-        console.log(stateObj);
-        stateObj[stateNameAbbr] += 1;
+        
+        stateObj[stateNameAbbr].push(userName);
 
         const numberOfStudents = Object.keys(stateObj).reduce( (acc, cur) => {
-            console.log('hi',acc, cur, stateObj[cur]);
-            console.log(acc + stateObj[cur]);
-            return acc + stateObj[cur];
+            return acc + stateObj[cur].length;
         }, 0);
         console.log(`Number of students is ${numberOfStudents}`);
 
-        statesAbbr.forEach( item => {
-            const stateItem = document.querySelector(`#${item}`);
-            const stateValue = stateObj[item];
-            const stateValuePercentage = stateValue/numberOfStudents;
-            console.log(stateValuePercentage);
-            stateItem.style.fill = `rgba(0,0,0,${stateValuePercentage}`;
+        statesAbbr.forEach( stateAbbr => {
+            console.log(stateAbbr);
+            const stateItem = document.querySelector(`#${stateAbbr}`);
+            const stateFrequency = stateObj[stateAbbr].length;
+            const stateFrequencyPercentage = stateFrequency/numberOfStudents;
+            console.log(stateFrequencyPercentage);
+            stateItem.style.fill = `rgba(0,0,0,${stateFrequencyPercentage}`;
+
+            //click event that alerts user names of people in state
+            stateItem.addEventListener("click", event => {
+                
+                alert()
+            })
         })
 
 

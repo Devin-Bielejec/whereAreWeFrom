@@ -131,15 +131,16 @@ userNames.forEach( item => {
         console.log(`State name is ${stateName} or abbr is ${stateNameAbbr}`);
 
         if (stateNameAbbr != undefined){
-            let currentStateAbbr = stateNameAbbr;
-        } else if (stateName.length != undefined) {
-            let currentStateAbbr = statesAbbr[states.indexOf(stateName)];
+            stateNameAbbr = stateNameAbbr;
+        } else if (stateName != undefined) {
+            stateNameAbbr = statesAbbr[states.indexOf(stateName)];
         } else {
             console.log(`The location ${location} does not match`);
+            stateNameAbbr = null;
         }
-        console.log(currentStateAbbr);
+        console.log(stateNameAbbr);
         }
         )
-    .catch( err => err)
+    .catch( err => console.log(err))
 }
 )

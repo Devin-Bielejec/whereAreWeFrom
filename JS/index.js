@@ -10,7 +10,6 @@ const userNames = [ "rleslie1015", "ajkizer", "Devin-Bielejec", "AceMouty"];
 let states = ["Alaska",
                   "Alabama",
                   "Arkansas",
-                  "American Samoa",
                   "Arizona",
                   "California",
                   "Colorado",
@@ -19,7 +18,6 @@ let states = ["Alaska",
                   "Delaware",
                   "Florida",
                   "Georgia",
-                  "Guam",
                   "Hawaii",
                   "Iowa",
                   "Idaho",
@@ -37,7 +35,7 @@ let states = ["Alaska",
                   "Mississippi",
                   "Montana",
                   "North Carolina",
-                  " North Dakota",
+                  "North Dakota",
                   "Nebraska",
                   "New Hampshire",
                   "New Jersey",
@@ -48,7 +46,6 @@ let states = ["Alaska",
                   "Oklahoma",
                   "Oregon",
                   "Pennsylvania",
-                  "Puerto Rico",
                   "Rhode Island",
                   "South Carolina",
                   "South Dakota",
@@ -56,7 +53,6 @@ let states = ["Alaska",
                   "Texas",
                   "Utah",
                   "Virginia",
-                  "Virgin Islands",
                   "Vermont",
                   "Washington",
                   "Wisconsin",
@@ -66,7 +62,6 @@ let states = ["Alaska",
 let statesAbbr = [ "AK",
 "AL",
 "AR",
-"AS",
 "AZ",
 "CA",
 "CO",
@@ -75,7 +70,6 @@ let statesAbbr = [ "AK",
 "DE",
 "FL",
 "GA",
-"GU",
 "HI",
 "IA",
 "ID",
@@ -104,7 +98,6 @@ let statesAbbr = [ "AK",
 "OK",
 "OR",
 "PA",
-"PR",
 "RI",
 "SC",
 "SD",
@@ -112,14 +105,16 @@ let statesAbbr = [ "AK",
 "TX",
 "UT",
 "VA",
-"VI",
 "VT",
 "WA",
 "WI",
 "WV",
-"WY"]
+"WY",
+"unknown"]
 
 let stateObj = {};
+
+statesAbbr.forEach(item => stateObj[item] = 0);
 
 userNames.forEach( (item) => {
     axios.get(`https://api.github.com/users/${item}`)
@@ -136,19 +131,26 @@ userNames.forEach( (item) => {
             stateNameAbbr = statesAbbr[states.indexOf(stateName)];
         } else {
             console.log(`The location ${location} does not match`);
-            stateNameAbbr = null;
+            stateNameAbbr = "uknown";
         }
         console.log(`The state is ${stateNameAbbr}`);
         console.log(`state Obj is ${stateObj}`);
-
-        stateObj[stateNameAbbr] != undefined ? stateObj[stateNameAbbr] += 1 : stateObj[stateNameAbbr] = 1;
         console.log(stateObj);
+        stateObj[stateNameAbbr] += 1;
+
+        const numberOfStudents = Object.keys(stateObj).reduce( (acc, cur) => {
+            console.log('hi',acc, cur, stateObj[cur]);
+            console.log(acc + stateObj[cur]);
+            return acc + stateObj[cur];
+        }, 0);
+        console.log(`Number of students is ${numberOfStudents}`);
+
         statesAbbr.forEach( item => {
             const stateItem = document.querySelector(`#${item}`);
             const stateValue = stateObj[item];
-            stateValue == 1 ? console.log(item) : false;
-
-            
+            const stateValuePercentage = stateValue/numberOfStudents;
+            console.log(stateValuePercentage);
+            stateItem.style.fill = `rgba(0,0,0,${stateValuePercentage}`;
         })
 
 

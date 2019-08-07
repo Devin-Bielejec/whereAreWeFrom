@@ -1,3 +1,4 @@
 .state path{
-    fill: rgba(0,0,0,0.5);
+    fill: rgba(0,0,0,0);
+    stroke: black;
 }

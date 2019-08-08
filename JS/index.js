@@ -1,14 +1,33 @@
 //testing  forks?page1&per_page:100
-let dataObject = {};
+let userNamesData = [];
 for (let i = 1; i < 2; i++) {
     axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?page=${i}`).then( response => {
-        console.log(response);
-        console.log(response.data);
+        console.log("hi",response.data[0]);
+        console.log(response.data[0].owner.login)
+        const filteredData = response.data.filter( item => item["created_at"].includes("2019-08-07") );
+        console.log(`Filtered data is`, filteredData);
+        const mappedData = filteredData.map( item => {
+            const newObj = {"login": item.owner.login, "created_at":item["created_at"]};
+            return newObj;    
+        });
+        console.log(mappedData);
+        userNamesData.push(mappedData);
+        let newObj = {};
+
         window.setTimeout(1000);
     }).catch( err => console.log(err) );
 }
 
-const userNames = [ "rleslie1015", "ajkizer", "Devin-Bielejec", "AceMouty"];
+window.setTimeout(1000);
+console.log(userNamesData);
+
+const userNames = userNamesData.map( item => {
+    const newList = [];
+    newList.push(item.login);
+    return newList;
+})
+
+console.log("usernames are", userNames);
 
 let states = ["Alaska",
                   "Alabama",

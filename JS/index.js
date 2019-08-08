@@ -1,3 +1,4 @@
+const userNames = [];
 axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`).then( response => {
     //Determine how many pages there will be by first finding total number of forks
     const forkCount = response.data["forks_count"];
@@ -7,11 +8,13 @@ axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`).then(
     const getList =  [];
 
     for (let i = 1; i < numberOfPages+1; i++) {
-        getList.push(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100&page=${i}`)
+        getList.push(axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100&page=${i}`));
     }
 
     // Execute all requests simultaneously
     axios.all(getList).then( responseArr => {
+
+        console.log(responseArr);
 
         // reponseArr is an array of reponses. Each Element is one of the requests
         responseArr.forEach( (response) => {
@@ -21,10 +24,21 @@ axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`).then(
                 console.log("REQUEST ERROR");
             } else {
 
-                // For each entry in the reponse data -- each fork object
-                response.data.forEach( (fork) => {
-                    console.log(`Fork - Owner: ${fork.owner.login}`);
+                console.log(`The data we get before we filter it is`, response.data);
+
+                // Filter the data to only contain students that forked this project in august
+                const filteredData = response.data.filter( (fork) => {
+                    console.log("fork", fork);
+                    return fork["created_at"].includes("2019-08");
                 })
+
+                console.log(filteredData);
+
+                filteredData.forEach( item => {
+                    userNames.push(item.owner.login);
+                })
+
+                console.log(userNames);
             }
         })
     })
@@ -35,8 +49,7 @@ axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`).then(
 
 
 
-//     console.log("hi",response.data[0]);
-//     console.log(response.data[0].owner.login)
+
 //     const filteredData = response.data.filter( item => item["created_at"].includes("2019-08-07") );
 //     console.log(`Filtered data is`, filteredData);
 //     const mappedData = filteredData.map( item => {
@@ -49,18 +62,6 @@ axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`).then(
 
 //     window.setTimeout(1000);
 // }).catch( err => console.log(err) );
-
-
-window.setTimeout(1000);
-console.log(userNamesData);
-
-const userNames = userNamesData.map( item => {
-    const newList = [];
-    newList.push(item.login);
-    return newList;
-})
-
-console.log("usernames are", userNames);
 
 let states = ["Alaska",
                   "Alabama",

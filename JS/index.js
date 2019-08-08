@@ -103,13 +103,17 @@ let statesAbbr = [ "AK",
 "WY",
 "unknown"]
 
-let stateObj = {};
+let frequencyByState = {};
 
-statesAbbr.forEach(item => stateObj[item] = []);
+//we are going to add user names into each state
+statesAbbr.forEach(item => frequencyByState[item] = []);
+
+
 
 async function getUserNames() {
+
     try { 
-        const response = await axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`);
+        const response = await axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`, {auth: auth});
 
         let userNames = [];
         //Determine how many pages there will be by first finding total number of forks
@@ -120,7 +124,7 @@ async function getUserNames() {
         const getList =  [];
 
         for (let i = 1; i < numberOfPages+1; i++) {
-            getList.push(axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100&page=${i}`));
+            getList.push(axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100&page=${i}`,{auth: auth}));
         }
 
         // Execute all requests simultaneously
@@ -151,14 +155,16 @@ async function getUserNames() {
         //add user name get request to list
         console.log(userNames);
 
-        userNames.forEach( (userName) => getList2.push(axios.get(`https://api.github.com/users/${userName}`)));
+        userNames.forEach( (userName) => getList2.push(axios.get(`https://api.github.com/users/${userName}`,{auth: auth})));
 
-        console.log("getlist",getList);
+        console.log("getlist",getList2);
         //execute all request at the same time
-        axios.all(getList)
-        .then( response => {
-            console.log("response",response.data);
-            let location = response.data.location;
+        const userNamesData = await axios.all(getList2, {auth: auth})
+        
+        //data coming back is ojbects in an array
+        userNamesData.forEach( user => {
+            let location = user.data.location;
+            
             location === null ? location = "unknown" : true;
 
             let stateName = states.filter( item => location.includes(item))[0];
@@ -170,28 +176,34 @@ async function getUserNames() {
                 stateNameAbbr = statesAbbr[states.indexOf(stateName)];
             } else {
                 console.log(`The location ${location} does not match`);
-                stateNameAbbr = "uknown";
+                stateNameAbbr = "unknown";
             }
-            
-            stateObj[stateNameAbbr].push(userName);
+            console.log(user);
+            frequencyByState[stateNameAbbr].push(user.data.login);
+        });
 
-            const numberOfStudents = Object.keys(stateObj).reduce( (acc, cur) => {
-                return acc + stateObj[cur].length;
-            }, 0);
+        const numberOfStudents = Object.keys(frequencyByState).reduce( (acc, cur) => {
+            return acc + frequencyByState[cur].length;
+        }, 0);
 
-            statesAbbr.forEach( stateAbbr => {
-                const stateItem = document.querySelector(`#${stateAbbr}`);
-                const stateFrequency = stateObj[stateAbbr].length;
-                const stateFrequencyPercentage = stateFrequency/numberOfStudents;
-                stateItem.style.fill = `rgba(0,0,0,${stateFrequencyPercentage}`;
+        statesAbbr.forEach( stateAbbr => {
+            const stateItem = document.querySelector(`#${stateAbbr}`);
+            const stateFrequency = frequencyByState[stateAbbr].length;
+            const stateFrequencyPercentage = stateFrequency/numberOfStudents;
+            stateItem.style.fill = `rgba(0,0,0,${stateFrequencyPercentage}`;
 
-                //click event that alerts user names of people in state
-                stateItem.addEventListener("click", event => {
-                    
-                    alert()
-                });
+            //click event that alerts user names of people in state
+            stateItem.addEventListener("click", event => {
+                console.log(event.target.id);
+                const usersByThisState = frequencyByState[event.target.id];
+                let alertString = "";
+                usersByThisState.forEach( item => {
+                    alertString += `\n${item}`
+                })
+                alert(alertString);
             });
-            });
+        });
+
         } catch (error) {
         console.log(error);
     }

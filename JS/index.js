@@ -1,22 +1,63 @@
-//testing  forks?page1&per_page:100
-let userNamesData = [];
-for (let i = 1; i < 2; i++) {
-    axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?page=${i}`).then( response => {
-        console.log("hi",response.data[0]);
-        console.log(response.data[0].owner.login)
-        const filteredData = response.data.filter( item => item["created_at"].includes("2019-08-07") );
-        console.log(`Filtered data is`, filteredData);
-        const mappedData = filteredData.map( item => {
-            const newObj = {"login": item.owner.login, "created_at":item["created_at"]};
-            return newObj;    
-        });
-        console.log(mappedData);
-        userNamesData.push(mappedData);
-        let newObj = {};
+const linkParse = require("parse-link-header");
 
-        window.setTimeout(1000);
-    }).catch( err => console.log(err) );
-}
+axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100`).then( response => {
+    // Grab the link header from this initial reponse
+    // This will tell us how many pages of results there are
+    const parsed = linkParse(response.headers.link);
+
+    // If for some reason that header isn't there
+    if (!parsed.last.page) {
+        console.log("Error: Invalid link header !");
+        return;
+    }
+
+    // Build a list of request promises
+    const getList =  [];
+
+    for (let i = 1; i <= parsed.last.page; i++) {
+        getList.push(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100&page=${i}`)
+    }
+
+    // Execute all requests simultaneously
+    axios.all(getList).then( responseArr => {
+
+        // reponseArr is an array of reponses. Each Element is one of the requests
+        responseArr.forEach( (response) => {
+
+            // If the status code isn't 200, something went wrong
+            if (response.status !== 200) {
+                console.log("REQUEST ERROR");
+            } else {
+
+                // For each entry in the reponse data -- each fork object
+                response.data.forEach( (fork) => {
+                    console.log(`Fork - Owner: ${fork.owner.login}`);
+                })
+            }
+        })
+    })
+    .catch(error => {
+        console.log(error);
+    })
+});
+
+
+
+//     console.log("hi",response.data[0]);
+//     console.log(response.data[0].owner.login)
+//     const filteredData = response.data.filter( item => item["created_at"].includes("2019-08-07") );
+//     console.log(`Filtered data is`, filteredData);
+//     const mappedData = filteredData.map( item => {
+//         const newObj = {"login": item.owner.login, "created_at":item["created_at"]};
+//         return newObj;    
+//     });
+//     console.log(mappedData);
+//     userNamesData.push(mappedData);
+//     let newObj = {};
+
+//     window.setTimeout(1000);
+// }).catch( err => console.log(err) );
+
 
 window.setTimeout(1000);
 console.log(userNamesData);

@@ -1,10 +1,12 @@
 //testing  forks?page1&per_page:100
-let dataU = [];
-axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?page=1`).then( response => {
-    dataU.push(response.data);
-}).catch( err => console.log(err) );
-
-console.log(dataU);
+let dataObject = {};
+for (let i = 1; i < 2; i++) {
+    axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?page=${i}`).then( response => {
+        console.log(response);
+        console.log(respone["full_name"]);
+        window.setTimeout(1000);
+    }).catch( err => console.log(err) );
+}
 
 const userNames = [ "rleslie1015", "ajkizer", "Devin-Bielejec", "AceMouty"];
 

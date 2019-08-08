@@ -3,7 +3,7 @@ let dataObject = {};
 for (let i = 1; i < 2; i++) {
     axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?page=${i}`).then( response => {
         console.log(response);
-        console.log(response["full_name"]);
+        console.log(response.data);
         window.setTimeout(1000);
     }).catch( err => console.log(err) );
 }

@@ -48,7 +48,8 @@ let states = ["Alaska",
                   "Washington",
                   "Wisconsin",
                   "West Virginia",
-                  "Wyoming"]
+                  "Wyoming",
+                "Github location is not complete"]
 
 let statesAbbr = [ "AK",
 "AL",
@@ -108,12 +109,10 @@ let frequencyByState = {};
 //we are going to add user names into each state
 statesAbbr.forEach(item => frequencyByState[item] = []);
 
-
-
 async function getUserNames() {
 
     try { 
-        const response = await axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`, {auth: auth});
+        const response = await axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`);
 
         let userNames = [];
         //Determine how many pages there will be by first finding total number of forks
@@ -124,7 +123,7 @@ async function getUserNames() {
         const getList =  [];
 
         for (let i = 1; i < numberOfPages+1; i++) {
-            getList.push(axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100&page=${i}`,{auth: auth}));
+            getList.push(axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100&page=${i}`));
         }
 
         // Execute all requests simultaneously
@@ -155,11 +154,11 @@ async function getUserNames() {
         //add user name get request to list
         console.log(userNames);
 
-        userNames.forEach( (userName) => getList2.push(axios.get(`https://api.github.com/users/${userName}`,{auth: auth})));
+        userNames.forEach( (userName) => getList2.push(axios.get(`https://api.github.com/users/${userName}`)));
 
         console.log("getlist",getList2);
         //execute all request at the same time
-        const userNamesData = await axios.all(getList2, {auth: auth})
+        const userNamesData = await axios.all(getList2)
         
         //data coming back is ojbects in an array
         userNamesData.forEach( user => {
@@ -190,17 +189,32 @@ async function getUserNames() {
             const stateItem = document.querySelector(`#${stateAbbr}`);
             const stateFrequency = frequencyByState[stateAbbr].length;
             const stateFrequencyPercentage = stateFrequency/numberOfStudents;
-            stateItem.style.fill = `rgba(0,0,0,${stateFrequencyPercentage}`;
+            stateItem.style.fill = `rgba(0,0,0,${stateFrequencyPercentage*2}`;
 
             //click event that alerts user names of people in state
             stateItem.addEventListener("click", event => {
+                const currentOl = document.getElementById("listForUsers");
+                console.log(currentOl);
+                currentOl != null ? currentOl.parentNode.removeChild(currentOl) : true;
+
                 console.log(event.target.id);
                 const usersByThisState = frequencyByState[event.target.id];
-                let alertString = "";
+                
+                const sectionForInfo = document.querySelector("#usersByState");
+                const headingStateName = document.createElement("h3");
+                headingStateName.textContent = states[statesAbbr.indexOf(event.target.id)];
+                sectionForInfo.appendChild(headingStateName);
+                
+                const ol = document.createElement("ol");
+                ol.id = "listForUsers";
+                sectionForInfo.appendChild(ol);
+
+
                 usersByThisState.forEach( item => {
-                    alertString += `\n${item}`
+                    const pTag = document.createElement("p");
+                    pTag.textContent = item;
+                    sectionForInfo.appendChild(pTag);
                 })
-                alert(alertString);
             });
         });
 

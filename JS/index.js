@@ -1,68 +1,3 @@
-const userNames = [];
-axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`).then( response => {
-    //Determine how many pages there will be by first finding total number of forks
-    const forkCount = response.data["forks_count"];
-    const numberOfPages = Math.ceil(forkCount/100)
-
-    // Build a list of request promises
-    const getList =  [];
-
-    for (let i = 1; i < numberOfPages+1; i++) {
-        getList.push(axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100&page=${i}`));
-    }
-
-    // Execute all requests simultaneously
-    axios.all(getList).then( responseArr => {
-
-        console.log(responseArr);
-
-        // reponseArr is an array of reponses. Each Element is one of the requests
-        responseArr.forEach( (response) => {
-
-            // If the status code isn't 200, something went wrong
-            if (response.status !== 200) {
-                console.log("REQUEST ERROR");
-            } else {
-
-                console.log(`The data we get before we filter it is`, response.data);
-
-                // Filter the data to only contain students that forked this project in august
-                const filteredData = response.data.filter( (fork) => {
-                    console.log("fork", fork);
-                    return fork["created_at"].includes("2019-08");
-                })
-
-                console.log(filteredData);
-
-                filteredData.forEach( item => {
-                    userNames.push(item.owner.login);
-                })
-
-                console.log(userNames);
-            }
-        })
-    })
-    .catch(error => {
-        console.log(error);
-    })
-});
-
-
-
-
-//     const filteredData = response.data.filter( item => item["created_at"].includes("2019-08-07") );
-//     console.log(`Filtered data is`, filteredData);
-//     const mappedData = filteredData.map( item => {
-//         const newObj = {"login": item.owner.login, "created_at":item["created_at"]};
-//         return newObj;    
-//     });
-//     console.log(mappedData);
-//     userNamesData.push(mappedData);
-//     let newObj = {};
-
-//     window.setTimeout(1000);
-// }).catch( err => console.log(err) );
-
 let states = ["Alaska",
                   "Alabama",
                   "Arkansas",
@@ -172,8 +107,56 @@ let stateObj = {};
 
 statesAbbr.forEach(item => stateObj[item] = []);
 
-userNames.forEach( (userName) => {
-    axios.get(`https://api.github.com/users/${userName}`)
+async function myFunction() {
+    let userNamesArray = await axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`).then( (response) => {
+        let userNames = [];
+        //Determine how many pages there will be by first finding total number of forks
+        const forkCount = response.data["forks_count"];
+        const numberOfPages = Math.ceil(forkCount/100)
+
+        // Build a list of request promises
+        const getList =  [];
+
+        for (let i = 1; i < numberOfPages+1; i++) {
+            getList.push(axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100&page=${i}`));
+        }
+
+        // Execute all requests simultaneously
+        axios.all(getList).then( responseArr => {
+
+            // reponseArr is an array of reponses. Each Element is one of the requests
+            responseArr.forEach( (response) => {
+
+                // If the status code isn't 200, something went wrong
+                if (response.status !== 200) {
+                    console.log("REQUEST ERROR");
+                } else {
+
+                    // Filter the data to only contain students that forked this project in august
+                    const filteredData = response.data.filter( (fork) => {
+                        return fork["created_at"].includes("2019-08");
+                    })
+
+                    filteredData.forEach( item => {
+                        userNames.push(item.owner.login);
+                    })
+
+                }
+            })
+        
+        })
+        return userNames;
+    });
+
+    //make get list
+    const getList = [];
+        
+    //add user name get request to list
+    console.log(`the variable we passed in was`, userNamesArray);
+    userNamesArray.forEach( (userName) => getList.push(axios.get(`https://api.github.com/users/${userName}`)));
+
+    //execute all request at the same time
+    axios.all(getList)
     .then( response => {
         let location = response.data.location;
         location === null ? location = "unknown" : true;
@@ -206,14 +189,10 @@ userNames.forEach( (userName) => {
             stateItem.addEventListener("click", event => {
                 
                 alert()
-            })
-        })
-
-
-        }
-        )
-    .catch( err => console.log(err))
+            });
+        });
+        });
 }
-)
 
+myFunction();
 

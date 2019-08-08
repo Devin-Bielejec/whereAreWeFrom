@@ -1,4 +1,4 @@
-const linkParse = require("parse-link-header");
+//const linkParse = require("parse-link-header");
 
 axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100`).then( response => {
     // Grab the link header from this initial reponse

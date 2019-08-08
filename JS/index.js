@@ -107,8 +107,10 @@ let stateObj = {};
 
 statesAbbr.forEach(item => stateObj[item] = []);
 
-async function myFunction() {
-    let userNamesArray = await axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`).then( (response) => {
+async function getUserNames() {
+    try { 
+        const response = await axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`);
+
         let userNames = [];
         //Determine how many pages there will be by first finding total number of forks
         const forkCount = response.data["forks_count"];
@@ -122,77 +124,81 @@ async function myFunction() {
         }
 
         // Execute all requests simultaneously
-        axios.all(getList).then( responseArr => {
+        const responseArr = await axios.all(getList);
 
-            // reponseArr is an array of reponses. Each Element is one of the requests
-            responseArr.forEach( (response) => {
+        // reponseArr is an array of reponses. Each Element is one of the requests
+        responseArr.forEach( (response) => {
 
-                // If the status code isn't 200, something went wrong
-                if (response.status !== 200) {
-                    console.log("REQUEST ERROR");
-                } else {
+            // If the status code isn't 200, something went wrong
+            if (response.status !== 200) {
+                console.log("REQUEST ERROR");
+            } else {
 
-                    // Filter the data to only contain students that forked this project in august
-                    const filteredData = response.data.filter( (fork) => {
-                        return fork["created_at"].includes("2019-08");
-                    })
+                // Filter the data to only contain students that forked this project in august
+                const filteredData = response.data.filter( (fork) => {
+                    return fork["created_at"].includes("2019-08");
+                })
 
-                    filteredData.forEach( item => {
-                        userNames.push(item.owner.login);
-                    })
+                filteredData.forEach( item => {
+                    userNames.push(item.owner.login);
+                })
 
-                }
-            })
-        
+            }
         })
-        return userNames;
-    });
-
-    //make get list
-    const getList = [];
         
-    //add user name get request to list
-    console.log(`the variable we passed in was`, userNamesArray);
-    userNamesArray.forEach( (userName) => getList.push(axios.get(`https://api.github.com/users/${userName}`)));
+        //make get list
+        const getList2 = [];
+        //add user name get request to list
+        console.log(userNames);
 
-    //execute all request at the same time
-    axios.all(getList)
-    .then( response => {
-        let location = response.data.location;
-        location === null ? location = "unknown" : true;
+        userNames.forEach( (userName) => getList2.push(axios.get(`https://api.github.com/users/${userName}`)));
 
-        let stateName = states.filter( item => location.includes(item))[0];
-        let stateNameAbbr = statesAbbr.filter( item => location.includes(item))[0];
+        console.log("getlist",getList);
+        //execute all request at the same time
+        axios.all(getList)
+        .then( response => {
+            console.log("response",response.data);
+            let location = response.data.location;
+            location === null ? location = "unknown" : true;
 
-        if (stateNameAbbr != undefined){
-            stateNameAbbr = stateNameAbbr;
-        } else if (stateName != undefined) {
-            stateNameAbbr = statesAbbr[states.indexOf(stateName)];
-        } else {
-            console.log(`The location ${location} does not match`);
-            stateNameAbbr = "uknown";
-        }
-        
-        stateObj[stateNameAbbr].push(userName);
+            let stateName = states.filter( item => location.includes(item))[0];
+            let stateNameAbbr = statesAbbr.filter( item => location.includes(item))[0];
 
-        const numberOfStudents = Object.keys(stateObj).reduce( (acc, cur) => {
-            return acc + stateObj[cur].length;
-        }, 0);
+            if (stateNameAbbr != undefined){
+                stateNameAbbr = stateNameAbbr;
+            } else if (stateName != undefined) {
+                stateNameAbbr = statesAbbr[states.indexOf(stateName)];
+            } else {
+                console.log(`The location ${location} does not match`);
+                stateNameAbbr = "uknown";
+            }
+            
+            stateObj[stateNameAbbr].push(userName);
 
-        statesAbbr.forEach( stateAbbr => {
-            const stateItem = document.querySelector(`#${stateAbbr}`);
-            const stateFrequency = stateObj[stateAbbr].length;
-            const stateFrequencyPercentage = stateFrequency/numberOfStudents;
-            stateItem.style.fill = `rgba(0,0,0,${stateFrequencyPercentage}`;
+            const numberOfStudents = Object.keys(stateObj).reduce( (acc, cur) => {
+                return acc + stateObj[cur].length;
+            }, 0);
 
-            //click event that alerts user names of people in state
-            stateItem.addEventListener("click", event => {
-                
-                alert()
+            statesAbbr.forEach( stateAbbr => {
+                const stateItem = document.querySelector(`#${stateAbbr}`);
+                const stateFrequency = stateObj[stateAbbr].length;
+                const stateFrequencyPercentage = stateFrequency/numberOfStudents;
+                stateItem.style.fill = `rgba(0,0,0,${stateFrequencyPercentage}`;
+
+                //click event that alerts user names of people in state
+                stateItem.addEventListener("click", event => {
+                    
+                    alert()
+                });
             });
-        });
-        });
+            });
+        } catch (error) {
+        console.log(error);
+    }
 }
 
-myFunction();
+getUserNames();
 
+
+
+    

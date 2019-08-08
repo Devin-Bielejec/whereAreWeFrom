@@ -1,20 +1,12 @@
-//const linkParse = require("parse-link-header");
-
-axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100`).then( response => {
-    // Grab the link header from this initial reponse
-    // This will tell us how many pages of results there are
-    const parsed = linkParse(response.headers.link);
-
-    // If for some reason that header isn't there
-    if (!parsed.last.page) {
-        console.log("Error: Invalid link header !");
-        return;
-    }
+axios.get(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components`).then( response => {
+    //Determine how many pages there will be by first finding total number of forks
+    const forkCount = response.data["forks_count"];
+    const numberOfPages = Math.ceil(forkCount/100)
 
     // Build a list of request promises
     const getList =  [];
 
-    for (let i = 1; i <= parsed.last.page; i++) {
+    for (let i = 1; i < numberOfPages+1; i++) {
         getList.push(`https://api.github.com/repos/LambdaSchool/Newsfeed-Components/forks?per_page=100&page=${i}`)
     }
 

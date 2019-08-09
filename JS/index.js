@@ -8183,7 +8183,7 @@ async function getUserNames() {
             const stateItem = document.querySelector(`#${stateAbbr}`);
             const stateFrequency = frequencyByState[stateAbbr].length;
             const stateFrequencyPercentage = stateFrequency/numberOfStudents;
-            stateItem.style.fill = `rgba(0,0,0,${stateFrequencyPercentage*2}`;
+            stateItem.style.fill = `rgba(255,0,0,${stateFrequencyPercentage*2}`;
 
             //click event that alerts user names of people in state
             stateItem.addEventListener("click", event => {
